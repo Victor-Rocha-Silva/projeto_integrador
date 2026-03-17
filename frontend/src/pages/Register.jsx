@@ -2,24 +2,28 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 
-function Login() {
+function Register() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const navigate = useNavigate();
 
-  async function handleLogin(e) {
+  async function handleRegister(e) {
     e.preventDefault();
 
     try {
-      const response = await api.post("/login", {
+      const response = await api.post("/register", {
+        name,
         email,
         password,
+        password_confirmation: passwordConfirmation,
       });
 
       localStorage.setItem("token", response.data.token);
-      setMessage("Login realizado com sucesso!");
+      setMessage("Usuário cadastrado com sucesso!");
       setMessageType("success");
 
       setTimeout(() => {
@@ -31,7 +35,7 @@ function Login() {
       if (error.response?.data?.message) {
         setMessage(error.response.data.message);
       } else {
-        setMessage("Erro ao fazer login.");
+        setMessage("Erro ao cadastrar usuário.");
       }
 
       setMessageType("error");
@@ -41,9 +45,19 @@ function Login() {
   return (
     <div className="page-container">
       <div className="auth-card">
-        <h1 className="auth-title">Login</h1>
+        <h1 className="auth-title">Cadastro</h1>
 
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegister}>
+          <div className="form-group">
+            <label>Nome</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Digite seu nome"
+            />
+          </div>
+
           <div className="form-group">
             <label>Email</label>
             <input
@@ -64,19 +78,29 @@ function Login() {
             />
           </div>
 
+          <div className="form-group">
+            <label>Confirmar senha</label>
+            <input
+              type="password"
+              value={passwordConfirmation}
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
+              placeholder="Confirme sua senha"
+            />
+          </div>
+
           <button type="submit" className="btn-primary">
-            Entrar
+            Cadastrar
           </button>
         </form>
 
         {message && <div className={`message ${messageType}`}>{message}</div>}
 
         <p className="auth-footer">
-          Não tem conta? <Link to="/register">Cadastre-se</Link>
+          Já tem conta? <Link to="/login">Entrar</Link>
         </p>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Register;
